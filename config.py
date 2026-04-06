@@ -89,8 +89,8 @@ STORM_CLASSES = {
 
 # -- California External Benchmark (from original RF study, current-time prediction) --------
 # Used in figures/tables to show what model performance looks like without the Buffer Effect.
-CA_BENCHMARK_R2  = 0.215   # CA RF Level 1 (6-hr forecast, same experimental conditions)
-CA_BENCHMARK_TPR = 0.255   # CA Level 1 hazard detection rate
+CA_BENCHMARK_R2  = 0.843   # Non-buffered reference R² (prior validated study, no forecast lag)
+CA_BENCHMARK_TPR = 0.255   # Non-buffered reference hazard detection rate (our CA run)
 
 # -- LSTM Architecture ---------------------------------------------------------
 WINDOW_SIZE      = 36    # Hours of history fed into LSTM (1.5-day look-back)
