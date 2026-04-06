@@ -1,0 +1,282 @@
+{
+  "ccf_ca_lag_hours": 2,
+  "ccf_il_lag_hours": 12,
+  "ccf_il2_lag_hours": 12,
+  "ccf_sponge_effect_il": 10,
+  "ccf_sponge_effect_il2": 10,
+  "level1_ca": {
+    "r2": 0.2152,
+    "rmse": 9.847,
+    "mae": 6.327,
+    "tpr": 0.2553,
+    "far": 0.394,
+    "n_hazard_events": 1265,
+    "n_false_alarms": 210
+  },
+  "level1_il": {
+    "r2": 0.2542,
+    "rmse": 11.099,
+    "mae": 5.848,
+    "tpr": 0.2268,
+    "far": 0.419,
+    "n_hazard_events": 1345,
+    "n_false_alarms": 220
+  },
+  "level1_il2_validation": {
+    "r2": 0.2542,
+    "rmse": 11.099,
+    "mae": 5.848,
+    "tpr": 0.2268,
+    "far": 0.419,
+    "n_hazard_events": 1345,
+    "n_false_alarms": 220
+  },
+  "naive_il": {
+    "r2": 0.4577,
+    "rmse": 9.464,
+    "mae": 5.786,
+    "tpr": 0.6766,
+    "far": 0.3234,
+    "n_hazard_events": 1345,
+    "n_false_alarms": 435
+  },
+  "level1_predictive_gap_r2": -0.039,
+  "level2_il": {
+    "r2": 0.737,
+    "rmse": 6.591,
+    "mae": 4.056,
+    "tpr": 0.768,
+    "far": 0.1729,
+    "n_hazard_events": 1345,
+    "n_false_alarms": 216
+  },
+  "level3_il": {
+    "r2": 0.9086,
+    "rmse": 3.885,
+    "mae": 3.032,
+    "tpr": 0.9487,
+    "far": 0.0631,
+    "n_hazard_events": 1345,
+    "n_false_alarms": 86
+  },
+  "storm_il_l1": {
+    "r2": {
+      "dry": -0.0011,
+      "light": -0.0373,
+      "moderate": -0.0739,
+      "heavy": -0.6752
+    },
+    "rmse": {
+      "dry": 8.12,
+      "light": 24.823,
+      "moderate": 33.773,
+      "heavy": 49.341
+    },
+    "tpr": {
+      "dry": 0.0,
+      "light": 0.1918,
+      "moderate": 0.8333,
+      "heavy": 0.6
+    },
+    "far": {
+      "dry": 1.0,
+      "light": 0.4862,
+      "moderate": 0.4013,
+      "heavy": 0.2059
+    },
+    "n_samples": {
+      "dry": 19404,
+      "light": 1193,
+      "moderate": 375,
+      "heavy": 61
+    },
+    "n_hazard": {
+      "dry": 593,
+      "light": 485,
+      "moderate": 222,
+      "heavy": 45
+    }
+  },
+  "storm_il_l2": {
+    "r2": {
+      "dry": 0.5168,
+      "light": 0.7409,
+      "moderate": 0.7892,
+      "heavy": 0.6786
+    },
+    "rmse": {
+      "dry": 5.642,
+      "light": 12.405,
+      "moderate": 14.962,
+      "heavy": 21.612
+    },
+    "tpr": {
+      "dry": 0.5801,
+      "light": 0.9196,
+      "moderate": 0.9189,
+      "heavy": 0.8667
+    },
+    "far": {
+      "dry": 0.3294,
+      "light": 0.0861,
+      "moderate": 0.0145,
+      "heavy": 0.0488
+    },
+    "n_samples": {
+      "dry": 19404,
+      "light": 1193,
+      "moderate": 375,
+      "heavy": 61
+    },
+    "n_hazard": {
+      "dry": 593,
+      "light": 485,
+      "moderate": 222,
+      "heavy": 45
+    }
+  },
+  "storm_il_l3": {
+    "r2": {
+      "dry": 0.8503,
+      "light": 0.9617,
+      "moderate": 0.965,
+      "heavy": 0.9859
+    },
+    "rmse": {
+      "dry": 3.769,
+      "light": 4.886,
+      "moderate": 5.746,
+      "heavy": 4.056
+    },
+    "tpr": {
+      "dry": 0.9358,
+      "light": 0.9706,
+      "moderate": 0.9568,
+      "heavy": 0.9474
+    },
+    "far": {
+      "dry": 0.0865,
+      "light": 0.027,
+      "moderate": 0.0432,
+      "heavy": 0.0
+    },
+    "n_samples": {
+      "dry": 19397,
+      "light": 1193,
+      "moderate": 375,
+      "heavy": 61
+    },
+    "n_hazard": {
+      "dry": 779,
+      "light": 408,
+      "moderate": 139,
+      "heavy": 19
+    }
+  },
+  "storm_intensity": {
+    "dry": {
+      "l1_r2": -0.0011,
+      "l1_rmse": 8.12,
+      "l1_tpr": 0.0,
+      "l1_far": 1.0,
+      "l1_n_samples": 19404,
+      "l1_n_hazard": 593.0,
+      "l2_r2": 0.5168,
+      "l2_rmse": 5.642,
+      "l2_tpr": 0.5801,
+      "l2_far": 0.3294,
+      "l2_n_samples": 19404,
+      "l2_n_hazard": 593.0,
+      "l3_r2": 0.8503,
+      "l3_rmse": 3.769,
+      "l3_tpr": 0.9358,
+      "l3_far": 0.0865,
+      "l3_n_samples": 19397,
+      "l3_n_hazard": 779.0,
+      "n_samples": 19404
+    },
+    "light": {
+      "l1_r2": -0.0373,
+      "l1_rmse": 24.823,
+      "l1_tpr": 0.1918,
+      "l1_far": 0.4862,
+      "l1_n_samples": 1193,
+      "l1_n_hazard": 485.0,
+      "l2_r2": 0.7409,
+      "l2_rmse": 12.405,
+      "l2_tpr": 0.9196,
+      "l2_far": 0.0861,
+      "l2_n_samples": 1193,
+      "l2_n_hazard": 485.0,
+      "l3_r2": 0.9617,
+      "l3_rmse": 4.886,
+      "l3_tpr": 0.9706,
+      "l3_far": 0.027,
+      "l3_n_samples": 1193,
+      "l3_n_hazard": 408.0,
+      "n_samples": 1193
+    },
+    "moderate": {
+      "l1_r2": -0.0739,
+      "l1_rmse": 33.773,
+      "l1_tpr": 0.8333,
+      "l1_far": 0.4013,
+      "l1_n_samples": 375,
+      "l1_n_hazard": 222.0,
+      "l2_r2": 0.7892,
+      "l2_rmse": 14.962,
+      "l2_tpr": 0.9189,
+      "l2_far": 0.0145,
+      "l2_n_samples": 375,
+      "l2_n_hazard": 222.0,
+      "l3_r2": 0.965,
+      "l3_rmse": 5.746,
+      "l3_tpr": 0.9568,
+      "l3_far": 0.0432,
+      "l3_n_samples": 375,
+      "l3_n_hazard": 139.0,
+      "n_samples": 375
+    },
+    "heavy": {
+      "l1_r2": -0.6752,
+      "l1_rmse": 49.341,
+      "l1_tpr": 0.6,
+      "l1_far": 0.2059,
+      "l1_n_samples": 61,
+      "l1_n_hazard": 45.0,
+      "l2_r2": 0.6786,
+      "l2_rmse": 21.612,
+      "l2_tpr": 0.8667,
+      "l2_far": 0.0488,
+      "l2_n_samples": 61,
+      "l2_n_hazard": 45.0,
+      "l3_r2": 0.9859,
+      "l3_rmse": 4.056,
+      "l3_tpr": 0.9474,
+      "l3_far": 0.0,
+      "l3_n_samples": 61,
+      "l3_n_hazard": 19.0,
+      "n_samples": 61
+    }
+  },
+  "naive_r2": 0.4577,
+  "naive_rmse": 9.464,
+  "naive_mae": 5.786,
+  "naive_tpr": 0.6766,
+  "naive_far": 0.3234,
+  "community_impact": {
+    "population_served": 310000,
+    "lead_time_hours": 6,
+    "test_period_years": 2.4,
+    "hazard_events_in_test": 1345,
+    "annualized_hazard_rate": 560.2,
+    "l1_caught_per_year": 127.0,
+    "l2_caught_per_year": 430.2,
+    "l3_caught_per_year": 531.4,
+    "naive_caught_per_year": 379.0,
+    "additional_events_vs_l1": 404.4,
+    "additional_events_vs_naive": 152.4,
+    "fewer_missed_per_year": 404.4,
+    "impact_sentence": "Serving approximately 310,000 residents downstream of the Mackinaw\u2013Illinois River system, the LSTM model detected 404 additional dangerous turbidity events per year compared to the baseline Random Forest \u2014 providing water quality managers an average of 6 additional hours of advance warning per event."
+  }
+}

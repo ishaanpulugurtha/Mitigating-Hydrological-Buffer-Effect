@@ -1,0 +1,29 @@
+# ─────────────────────────────────────────────────────────────
+#  The Sponge Effect — Dependency List
+#  Install with:  pip install -r requirements.txt
+# ─────────────────────────────────────────────────────────────
+
+# Data fetching
+dataretrieval>=0.9.0
+requests>=2.31.0
+meteostat>=1.6.8
+
+# Data science core
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0
+
+# Machine learning
+scikit-learn>=1.3.0
+tensorflow>=2.13.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Notebook support (optional, for interactive exploration)
+jupyter>=1.0.0
+ipykernel>=6.25.0
+
+# Utilities
+tqdm>=4.65.0
