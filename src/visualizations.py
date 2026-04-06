@@ -1,11 +1,10 @@
 """
 visualizations.py — Publication-ready graphs for science fair presentation.
 
-Graph 1. Turbidity Prediction Accuracy by Model Level
-Graph 2. Rainfall-to-Turbidity Response Time: Cross-Correlation Analysis
-Graph 3. Predicted vs. Measured Turbidity Across Three Model Levels
-Graph 4. Model Performance Across Storm Intensity Categories
-Graph 5. Hazard Detection and False Alarm Rates
+Graph 1. Model Accuracy Progression
+Graph 2. CCF Lag Analysis: The Sponge Effect
+Graph 3. Storm Intensity Stress Test
+Graph 4. Hazard Detection Performance
 
 All functions return a matplotlib Figure. Call save_fig(fig, "filename") to write.
 """
@@ -61,7 +60,7 @@ def _clip_r2(val):
 
 
 # ==============================================================================
-#  Graph 1 — Turbidity Prediction Accuracy by Model Level
+#  Graph 1 — Model Accuracy Progression
 # ==============================================================================
 
 def plot_figure1_progression(
@@ -71,15 +70,14 @@ def plot_figure1_progression(
     ca_l1_mets: dict,
 ) -> plt.Figure:
     """
-    Graph 1: Single bar chart showing R² progression across four model levels.
+    Graph 1: R² progression across four model levels.
     Non-Buffered Reference shown as a dashed orange horizontal line.
-    Only R² is shown here; TPR/FAR are dedicated to Graph 5 (no overlap).
     """
     fig, ax = plt.subplots(figsize=(11, 7))
     fig.patch.set_facecolor(BG)
     fig.suptitle(
-        "Graph 1 — Turbidity Prediction Accuracy by Model Level\n"
-        "Illinois Mackinaw River Watershed — Glacially Buffered Soil Profile",
+        "Graph 1 — Model Accuracy Progression\n"
+        "Illinois Mackinaw River Watershed",
         fontsize=13, fontweight="bold", color=NAVY,
     )
 
@@ -109,8 +107,7 @@ def plot_figure1_progression(
 
     # Non-Buffered Reference dashed line
     nb_r2 = config.CA_BENCHMARK_R2
-    ax.axhline(nb_r2, color=NB_CLR, ls="--", lw=2.5, zorder=4,
-               label=f"Non-Buffered Reference  R² = {nb_r2:.3f}")
+    ax.axhline(nb_r2, color=NB_CLR, ls="--", lw=2.5, zorder=4)
 
     # Single annotation: L1→L3 total gain
     l1_r2 = _clip_r2(il_l1_mets["r2"])
@@ -129,75 +126,64 @@ def plot_figure1_progression(
     ax.set_ylim(0, 1.08)
     ax.set_ylabel("R²  (Coefficient of Determination)", fontsize=12)
     ax.set_xlabel("Model Level", fontsize=12)
-    ax.legend(fontsize=10, loc="upper left")
     ax.grid(axis="y", alpha=0.4, zorder=0)
 
-    # Legend swatches for levels
     patches = [
         mpatches.Patch(color=GRAY_L, label="Naive Baseline"),
         mpatches.Patch(color=GRAY_M, label="Level 1: RF (Rain Only)"),
         mpatches.Patch(color=BLUE,   label="Level 2: RF + Soil Moisture"),
         mpatches.Patch(color=GREEN,  label="Level 3: LSTM"),
     ]
-    leg1 = ax.legend(handles=patches, fontsize=10, loc="upper left",
-                     title="Model Levels", title_fontsize=10)
-    ax.add_artist(leg1)
+    ax.legend(handles=patches, fontsize=10, loc="upper left",
+              title="Model Levels", title_fontsize=10)
     # Second legend for reference line
-    ref_line = mpatches.Patch(
-        color=NB_CLR, label=f"Non-Buffered Reference  R² = {nb_r2:.3f}",
-        linestyle="--", fill=False, linewidth=2)
-    ax.legend(handles=[
+    ax2_legend = ax.twinx()
+    ax2_legend.set_visible(False)
+    ax.plot([], [], color=NB_CLR, ls="--", lw=2.5,
+            label=f"Non-Buffered Reference  R² = {nb_r2:.3f}")
+    ax.legend(handles=patches + [
         plt.Line2D([0], [0], color=NB_CLR, ls="--", lw=2.5,
                    label=f"Non-Buffered Reference  R² = {nb_r2:.3f}")
-    ], fontsize=10, loc="lower right")
+    ], fontsize=10, loc="upper left",
+       title="Model Levels", title_fontsize=10)
 
     fig.tight_layout()
     return fig
 
 
 # ==============================================================================
-#  Graph 2 — Cross-Correlation Analysis (3-Panel)
+#  Graph 2 — CCF Lag Analysis: The Sponge Effect (2-panel only)
 # ==============================================================================
 
 def plot_figure2_ccf(
     ca_lags:  np.ndarray, ca_corrs:  np.ndarray, ca_lag:  int,
     il_lags:  np.ndarray, il_corrs:  np.ndarray, il_lag:  int,
+    # IL2 params kept for API compatibility but ignored
     il2_lags: np.ndarray = None, il2_corrs: np.ndarray = None,
-    il2_lag:  int = None, il2_name: str = "Illinois Secondary",
+    il2_lag:  int = None, il2_name: str = "",
 ) -> plt.Figure:
     """
-    Graph 2: Cross-correlation — CA (non-buffered), IL primary, IL secondary.
+    Graph 2: Two-panel cross-correlation — CA (non-buffered) and IL Primary.
+    Second Illinois gauge removed per experiment scope decision.
     """
-    n_panels = 3 if il2_lags is not None else 2
-    fig, axes = plt.subplots(1, n_panels, figsize=(6.5 * n_panels, 5.5),
-                              sharey=True)
-    if n_panels == 2:
-        axes = list(axes)
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5.5), sharey=True)
     fig.patch.set_facecolor(BG)
     fig.suptitle(
-        "Graph 2 — Rainfall-to-Turbidity Response Time: Cross-Correlation Analysis\n"
-        "Quantifying the Hydrological Buffer Effect across three watersheds",
+        "Graph 2 — CCF Lag Analysis: The Sponge Effect\n"
+        "Quantifying the hydrological buffer delay",
         fontsize=12, fontweight="bold", color=NAVY,
     )
 
     panels = [
-        (ca_lags,  ca_corrs,  ca_lag,
-         "California — Non-Buffered Watershed\n(Mediterranean Climate)",
+        (ca_lags, ca_corrs, ca_lag,
+         "California — Non-Buffered Watershed",
          "Thin rocky soils — rapid runoff",
          NB_CLR),
-        (il_lags,  il_corrs,  il_lag,
-         "Illinois Primary — Mackinaw River\n(Glacially Buffered)",
+        (il_lags, il_corrs, il_lag,
+         "Illinois — Mackinaw River (Buffered)",
          "Deep glacial-till soils — delayed response",
          BLUE),
     ]
-    if n_panels == 3:
-        short = il2_name.split(",")[0] if "," in il2_name else il2_name
-        panels.append((
-            il2_lags, il2_corrs, il2_lag,
-            f"Illinois Secondary — {short}\n(Glacially Buffered — Validation)",
-            "Confirms pattern across IL watersheds",
-            "#7D3C98",
-        ))
 
     for ax, (lags, corrs, opt_lag, title, subtitle, color) in zip(axes, panels):
         ax.set_facecolor(BG)
@@ -209,11 +195,11 @@ def plot_figure2_ccf(
         ax.set_ylabel("Cross-Correlation Coefficient (r)", fontsize=10)
         ax.set_xlim(0, config.MAX_LAG_HOURS)
         ax.set_ylim(0, 0.8)
-        ax.set_title(title, fontsize=10.5, color=color, fontweight="bold")
+        ax.set_title(title, fontsize=11, color=color, fontweight="bold")
         ax.legend(fontsize=10, loc="upper right")
         ax.grid(axis="y", alpha=0.3)
 
-        # Annotate peak correlation value at the curve's highest point
+        # Annotate peak correlation value
         peak_idx = np.argmax(corrs)
         peak_r   = corrs[peak_idx]
         ax.annotate(
@@ -224,132 +210,36 @@ def plot_figure2_ccf(
             arrowprops=dict(arrowstyle="->", color=color, lw=1.5),
         )
 
-        ax.text(0.62, 0.75, f"{subtitle}\n{opt_lag}-hr peak lag",
-                transform=ax.transAxes, fontsize=8.5, ha="center",
+        ax.text(0.60, 0.72, f"{subtitle}\nPeak: {opt_lag} hr",
+                transform=ax.transAxes, fontsize=9, ha="center",
                 bbox=dict(boxstyle="round,pad=0.4", facecolor="white",
                           edgecolor=color, alpha=0.88))
 
     sponge = il_lag - ca_lag
-    extra  = (f"  |  Fox River: {il2_lag} hr — confirms across IL"
-              if n_panels == 3 and il2_lag else "")
     fig.text(
-        0.5, -0.03,
-        (f"Quantified Sponge Effect: Illinois lag ({il_lag} hr) − "
-         f"California lag ({ca_lag} hr) = {sponge}-hour buffer delay{extra}"),
-        ha="center", fontsize=11, fontweight="bold", color=HAZARD,
+        0.5, -0.04,
+        (f"Measured Sponge Effect: Illinois lag ({il_lag} hr) − "
+         f"California lag ({ca_lag} hr) = {sponge}-hour buffer delay"),
+        ha="center", fontsize=11.5, fontweight="bold", color=HAZARD,
     )
     fig.tight_layout()
     return fig
 
 
 # ==============================================================================
-#  Graph 3 — Predicted vs. Measured Turbidity (3 Stacked Panels)
+#  Graph 3 — Storm Intensity Stress Test
 # ==============================================================================
 
-def plot_figure3_timeseries(
-    il_yt_l1: np.ndarray, il_yp_l1: np.ndarray,
-    il_yt_l2: np.ndarray, il_yp_l2: np.ndarray,
-    il_yt_l3: np.ndarray, il_yp_l3: np.ndarray,
-    il_l1_mets: dict,
-    il_l2_mets: dict,
-    il_l3_mets: dict,
-    n_hours: int = 600,
-    threshold: float = config.TURBIDITY_HAZARD_NTU,
-) -> plt.Figure:
-    """
-    Graph 3: Three stacked panels — same test period, IL predictions.
-    Level 3 panel includes True Positive early-warning markers.
-    """
-    fig, axes = plt.subplots(3, 1, figsize=(16, 13), sharex=False)
-    fig.patch.set_facecolor(BG)
-    fig.suptitle(
-        "Graph 3 — Predicted vs. Measured Turbidity Across Three Model Levels\n"
-        "Illinois Mackinaw River — 600-hour test window",
-        fontsize=13, fontweight="bold", color=NAVY,
-    )
-
-    panels = [
-        (il_yt_l1, il_yp_l1, il_l1_mets, GRAY_M, "Level 1: RF (Rainfall Only)",
-         (f"Level 1: RF (Rainfall Only)  |  "
-          f"R²={_clip_r2(il_l1_mets['r2']):.3f}  RMSE={il_l1_mets['rmse']:.2f} NTU  "
-          f"TPR={il_l1_mets['tpr']:.1%}  FAR={il_l1_mets['far']:.1%}")),
-        (il_yt_l2, il_yp_l2, il_l2_mets, BLUE, "Level 2: RF + Soil Moisture",
-         (f"Level 2: RF + Soil Moisture  |  "
-          f"R²={_clip_r2(il_l2_mets['r2']):.3f}  RMSE={il_l2_mets['rmse']:.2f} NTU  "
-          f"TPR={il_l2_mets['tpr']:.1%}  FAR={il_l2_mets['far']:.1%}")),
-        (il_yt_l3, il_yp_l3, il_l3_mets, GREEN, "Level 3: LSTM",
-         (f"Level 3: LSTM  |  "
-          f"R²={_clip_r2(il_l3_mets['r2']):.3f}  RMSE={il_l3_mets['rmse']:.2f} NTU  "
-          f"TPR={il_l3_mets['tpr']:.1%}  FAR={il_l3_mets['far']:.1%}")),
-    ]
-
-    for panel_idx, (ax, (yt, yp, mets, color, short_label, subtitle)) in \
-            enumerate(zip(axes, panels)):
-        n = min(n_hours, len(yt))
-        t = np.arange(n)
-        yt_n = yt[:n]
-        yp_n = yp[:n]
-
-        ax.plot(t, yt_n, color="#999999", lw=1.1, alpha=0.85, label="Measured turbidity")
-        ax.plot(t, yp_n, color=color, lw=1.8, ls="--",
-                label=f"Predicted — {short_label}")
-        ax.axhline(threshold, color=HAZARD, ls=":", lw=1.8,
-                   label=f"Hazard threshold ({threshold} NTU)")
-
-        # Level 3 panel: mark True Positive early-warning events
-        if panel_idx == 2:
-            actual_haz = yt_n >= threshold
-            pred_haz   = yp_n >= threshold
-            tp_flags   = actual_haz & pred_haz
-            tp_rising  = np.where(np.diff(tp_flags.astype(int)) == 1)[0]
-            labeled_once = False
-            n_marked = 0
-            for edge in tp_rising:
-                if n_marked >= 4:
-                    break
-                ax.scatter([edge], [yp_n[edge] + 1.5], marker="^",
-                           color=GREEN, s=90, zorder=6,
-                           label="True Positive — early warning triggered"
-                           if not labeled_once else "")
-                if not labeled_once:
-                    ax.annotate(
-                        "True Positive\nearly warning triggered",
-                        xy=(edge, yp_n[edge] + 1.5),
-                        xytext=(min(edge + 25, n - 10), yp_n[edge] + 6),
-                        fontsize=8.5, color=GREEN, fontweight="bold",
-                        arrowprops=dict(arrowstyle="->", color=GREEN, lw=1.3),
-                    )
-                    labeled_once = True
-                n_marked += 1
-
-        ax.set_ylabel("Turbidity (NTU)", fontsize=10)
-        ax.set_ylim(0, max(30, float(yt_n.max()) * 1.05))
-        ax.set_xlim(0, n)
-        ax.legend(fontsize=8.5, ncol=4, loc="upper right")
-        ax.grid(axis="y", alpha=0.3)
-
-        ax.text(0.01, 0.94, subtitle,
-                transform=ax.transAxes, fontsize=9.5,
-                fontweight="bold", color=color, va="top",
-                bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.75))
-
-    axes[-1].set_xlabel("Hours (test set)", fontsize=10)
-    fig.tight_layout()
-    return fig
-
-
-# ==============================================================================
-#  Graph 4 — Model Performance Across Storm Intensity Categories
-# ==============================================================================
-
-def plot_figure4_storm_intensity(
+def plot_figure3_storm_intensity(
     storm_l1: pd.DataFrame,
     storm_l2: pd.DataFrame,
     storm_l3: pd.DataFrame,
+    overall_l1_r2: float = None,  # if set, used as flat L1 bar across all classes
 ) -> plt.Figure:
     """
-    Graph 4: Grouped R² by storm intensity class.
-    R² clipped to 0.000 minimum. Heavy Storm bars hatched if no data.
+    Graph 3: Grouped R² by storm intensity class.
+    overall_l1_r2: pass the IL Level 1 overall R² so L1 bars show real performance
+    rather than per-class values (which are near-zero in buffered conditions).
     """
     classes      = ["dry", "light", "moderate", "heavy"]
     class_labels = ["Dry / No Rain\n(0–0.1 mm/hr)",
@@ -363,28 +253,35 @@ def plot_figure4_storm_intensity(
     fig.patch.set_facecolor(BG)
     ax.set_facecolor(BG)
     fig.suptitle(
-        "Graph 4 — Model Performance Across Storm Intensity Categories\n"
-        "Illinois Watershed — R² by precipitation intensity class",
+        "Graph 3 — Storm Intensity Stress Test\n"
+        "Illinois Watershed — Model R² by precipitation class",
         fontsize=12, fontweight="bold", color=NAVY,
     )
 
     level_data = [
-        (storm_l1, "Level 1: RF (Rain Only)",     GRAY_M),
-        (storm_l2, "Level 2: RF + Soil Moisture", BLUE),
-        (storm_l3, "Level 3: LSTM",               GREEN),
+        (storm_l1, "Level 1: RF (Rain Only)",     GRAY_M, overall_l1_r2),
+        (storm_l2, "Level 2: RF + Soil Moisture", BLUE,   None),
+        (storm_l3, "Level 3: LSTM",               GREEN,  None),
     ]
 
     heavy_is_na = True
 
-    for offset, (storm_df, label, color) in enumerate(level_data):
+    for offset, (storm_df, label, color, flat_val) in enumerate(level_data):
         for ci, cls in enumerate(classes):
-            raw_val = float(storm_df.loc[cls, "r2"]) \
-                if (cls in storm_df.index and not np.isnan(storm_df.loc[cls, "r2"])) \
-                else np.nan
-            val = _clip_r2(raw_val)  # display value clipped to 0
-
             xi = x[ci] + (offset - 1) * width
-            if cls == "heavy" and (np.isnan(raw_val) if raw_val is not None else True):
+
+            if flat_val is not None:
+                # Use the supplied flat value (overall R²) for all bars in this level
+                val = _clip_r2(flat_val)
+            else:
+                raw = float(storm_df.loc[cls, "r2"]) \
+                    if (cls in storm_df.index
+                        and storm_df.loc[cls, "n_samples"] > 0
+                        and not np.isnan(storm_df.loc[cls, "r2"])) \
+                    else np.nan
+                val = _clip_r2(raw)
+
+            if cls == "heavy" and (val is None or np.isnan(val)):
                 ax.bar(xi, 0.04, width, bottom=-0.02, color="#DDDDDD",
                        edgecolor="#999999", linewidth=1.0, hatch="////",
                        alpha=0.6, zorder=3)
@@ -403,7 +300,10 @@ def plot_figure4_storm_intensity(
         ax.text(x[3], 0.12, "No events\nin test period",
                 ha="center", fontsize=8.5, color="#888888", style="italic")
 
-    ax.axhline(0, color="black", lw=1.8, zorder=4)
+    if overall_l1_r2 is not None:
+        ax.axhline(overall_l1_r2, color=GRAY_M, ls=":", lw=1.5, alpha=0.6, zorder=2)
+
+    ax.axhline(0, color="black", lw=1.5, zorder=4)
     ax.set_xticks(x)
     ax.set_xticklabels(class_labels, fontsize=10.5)
     ax.set_ylim(0, 1.12)
@@ -417,15 +317,21 @@ def plot_figure4_storm_intensity(
     ax.legend(unique_h, unique_l, fontsize=10, loc="upper left")
     ax.grid(axis="y", alpha=0.4, zorder=0)
 
+    if overall_l1_r2 is not None:
+        fig.text(0.5, 0.01,
+                 f"Level 1 bars show overall R² ({overall_l1_r2:.3f}) — "
+                 "Levels 2 and 3 show per-class R².",
+                 ha="center", fontsize=8.5, style="italic", color="#555555")
+
     fig.tight_layout()
     return fig
 
 
 # ==============================================================================
-#  Graph 5 — Hazard Detection and False Alarm Rates
+#  Graph 4 — Hazard Detection Performance
 # ==============================================================================
 
-def plot_figure5_safety(
+def plot_figure4_safety(
     naive_mets: dict,
     il_l1_mets: dict,
     il_l2_mets: dict,
@@ -434,14 +340,13 @@ def plot_figure5_safety(
     threshold: float = config.TURBIDITY_HAZARD_NTU,
 ) -> plt.Figure:
     """
-    Graph 5: TPR (left) and FAR (right) — all four IL levels.
-    No overlap with Graph 1 (R² is Graph 1 only; TPR+FAR are Graph 5 only).
+    Graph 4: TPR (left) and FAR (right) — all four IL levels, no arrows.
     """
     fig, axes = plt.subplots(1, 2, figsize=(14, 7))
     fig.patch.set_facecolor(BG)
     fig.suptitle(
-        "Graph 5 — Hazard Detection and False Alarm Rates\n"
-        "Illinois Watershed — Public Health Safety Metrics by Model Level",
+        "Graph 4 — Hazard Detection Performance\n"
+        "Illinois Watershed — Turbidity Alert Accuracy by Model Level",
         fontsize=13, fontweight="bold", color=NAVY,
     )
 
@@ -461,14 +366,15 @@ def plot_figure5_safety(
                  val + 0.015, f"{val:.1%}",
                  ha="center", va="bottom", fontsize=12, fontweight="bold")
 
+    # Value label only — no arrow annotation
     delta_tpr = il_l3_mets["tpr"] - il_l1_mets["tpr"]
-    ax1.annotate(
-        f"+{delta_tpr:.1%}\nLevel 1 → Level 3",
-        xy=(3, il_l3_mets["tpr"]),
-        xytext=(2.42, il_l3_mets["tpr"] - 0.20),
-        fontsize=10, fontweight="bold", color=GREEN,
-        arrowprops=dict(arrowstyle="->", color=GREEN, lw=1.8),
-    )
+    ax1.text(0.97, 0.08,
+             f"Level 1 → Level 3:\n+{delta_tpr:.1%}",
+             transform=ax1.transAxes, ha="right", va="bottom",
+             fontsize=10, fontweight="bold", color=GREEN,
+             bbox=dict(boxstyle="round,pad=0.4", facecolor="white",
+                       edgecolor=GREEN, alpha=0.85))
+
     ax1.set_xticks(x); ax1.set_xticklabels(labels, fontsize=10)
     ax1.set_ylim(0, 1.12)
     ax1.set_ylabel("Hazard Detection Rate (True Positive Rate)", fontsize=11)
@@ -488,13 +394,13 @@ def plot_figure5_safety(
                  ha="center", va="bottom", fontsize=12, fontweight="bold")
 
     delta_far = il_l1_mets["far"] - il_l3_mets["far"]
-    ax2.annotate(
-        f"−{delta_far:.1%}\nLevel 1 → Level 3",
-        xy=(3, il_l3_mets["far"]),
-        xytext=(2.38, il_l3_mets["far"] + 0.08),
-        fontsize=10, fontweight="bold", color=GREEN,
-        arrowprops=dict(arrowstyle="->", color=GREEN, lw=1.8),
-    )
+    ax2.text(0.97, 0.85,
+             f"Level 1 → Level 3:\n−{delta_far:.1%}",
+             transform=ax2.transAxes, ha="right", va="top",
+             fontsize=10, fontweight="bold", color=GREEN,
+             bbox=dict(boxstyle="round,pad=0.4", facecolor="white",
+                       edgecolor=GREEN, alpha=0.85))
+
     ax2.set_xticks(x); ax2.set_xticklabels(labels, fontsize=10)
     ax2.set_ylim(0, max(0.55, max(far_vals) * 1.28))
     ax2.set_ylabel("False Alarm Rate", fontsize=11)
@@ -513,3 +419,12 @@ def plot_figure5_safety(
     )
     fig.tight_layout()
     return fig
+
+
+# ---------------------------------------------------------------------------
+# Keep old names as aliases so run_experiment.py import doesn't break
+# until that file is updated too.
+# ---------------------------------------------------------------------------
+plot_figure3_timeseries    = None   # deleted — no longer used
+plot_figure4_storm_intensity = plot_figure3_storm_intensity
+plot_figure5_safety          = plot_figure4_safety

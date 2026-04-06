@@ -62,9 +62,8 @@ from src.analysis       import compute_ccf, find_optimal_lag, storm_intensity_me
 from src.visualizations import (
     plot_figure1_progression,
     plot_figure2_ccf,
-    plot_figure3_timeseries,
-    plot_figure4_storm_intensity,
-    plot_figure5_safety,
+    plot_figure3_storm_intensity,
+    plot_figure4_safety,
     save_fig,
 )
 import config
@@ -419,24 +418,19 @@ def main(use_synthetic: bool = False):
     )
     save_fig(fig, "figure1_progression.png")
 
-    print("  Figure 2 (CCF, 3-panel) already saved as figure2_ccf.png")
+    print("  Graph 2 (CCF) already saved as figure2_ccf.png")
 
-    fig = plot_figure3_timeseries(
-        l1_preds["illinois"][0], l1_preds["illinois"][1],
-        y2_te.values, yp2,
-        il_yt_l3, il_yp_l3,
-        l1_mets["illinois"], il_l2_mets, il_l3_mets,
+    fig = plot_figure3_storm_intensity(
+        storm_l1, storm_l2, storm_l3,
+        overall_l1_r2=l1_mets["illinois"]["r2"],
     )
-    save_fig(fig, "figure3_timeseries.png")
+    save_fig(fig, "figure3_storm_intensity.png")
 
-    fig = plot_figure4_storm_intensity(storm_l1, storm_l2, storm_l3)
-    save_fig(fig, "figure4_storm_intensity.png")
-
-    fig = plot_figure5_safety(
+    fig = plot_figure4_safety(
         naive_mets, l1_mets["illinois"], il_l2_mets, il_l3_mets,
         l1_mets["california"],
     )
-    save_fig(fig, "figure5_safety.png")
+    save_fig(fig, "figure4_safety.png")
 
     # ── Multi-Station Validation Summary Figure ───────────────────────────────
     try:
